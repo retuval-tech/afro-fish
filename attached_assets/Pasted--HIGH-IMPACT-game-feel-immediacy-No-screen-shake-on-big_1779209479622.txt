@@ -1,0 +1,17 @@
+🔥 HIGH IMPACT (game-feel & immediacy)
+No screen shake on big wins. Right now a JACKPOT looks the same as a normal hit — just bigger text. Arcade games live and die on tactile feedback.
+No combo/multiplier UI. The streak counter is buried in a corner. Streaks should feel escalating, like a Tony Hawk score multiplier — getting bigger, faster, redder, with rising audio pitch.
+No floating damage numbers with physics. "+50" just fades — it should pop up, bounce, drift with the fish's motion, stack when multiple hit at once.
+Fish/dragons don't telegraph value strongly enough. A Kraken (15×) and a Clownfish (1×) feel equally easy to shoot. The big-payout enemies should pulse, glow, have warning sirens.
+Power-up drops missing. Every successful arcade shooter has pickups: multishot, screen-bomb, shield, slow-mo. Currently the only randomness is which fish appears.
+🎯 MEDIUM IMPACT (gameplay variety)
+Boss waves — every ~90 seconds, a giant boss appears (Mega-Kraken / Ancient Dragon) that takes 5–10 hits and drops a guaranteed jackpot pool. Right now every shot is one-and-done, no climax moments.
+Schools / formations — small fish (Clownfish) should sometimes appear in groups of 8–12 moving in formation. Hitting one chains a small bonus to nearby ones. Currently every fish spawns solo.
+Wave / difficulty escalation — currently the spawn rate is constant. Sessions feel flat. Adding gentle escalation ("Wave 3 begins!") gives natural rest/climb rhythm.
+Trap / net weapon — a 6th weapon tier that catches all fish in an area for a fixed cost. Lets players use strategy beyond "click expensive enemy".
+✨ POLISH (cumulative effect is large)
+Hit flash on enemies — fish/dragons should flicker white for 2 frames when shot. Right now they just disappear, which feels abrupt.
+Slow-motion on jackpots — for 0.4 seconds when JACKPOT triggers, animation slows to 30%. Hugely satisfying. Effectively free.
+Background life — Fish Hunter could use background fish silhouettes drifting deep. Dragon King could use lightning flashes / lava bubbles. Currently background is static.
+Weapon kill counters / "rank up" — track how many fish killed with each weapon, show a little badge ("Pistol Master") when crossing 100/500/1000 kills.
+End-of-session summary card — when player leaves, show "You slayed 142 dragons, biggest win 2,400 pts, longest streak 18". Currently you just exit.

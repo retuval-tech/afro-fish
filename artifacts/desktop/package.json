@@ -1,0 +1,41 @@
+{
+  "name": "@workspace/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Afro Fish — desktop arcade installer (Electron)",
+  "main": "dist/main.cjs",
+  "scripts": {
+    "build:frontend": "node -e \"process.env.PORT='5173';process.env.BASE_PATH='/';process.env.NODE_ENV='production';require('child_process').spawnSync('pnpm',['--filter','@workspace/afro-fish','run','build'],{stdio:'inherit',shell:true,env:process.env}).status===0||process.exit(1)\"",
+    "build:main": "node ./build.mjs",
+    "build": "pnpm run build:frontend && pnpm run build:main",
+    "start": "pnpm run build && electron .",
+    "dist": "pnpm run build && electron-builder",
+    "dist:win": "pnpm run build && electron-builder --win",
+    "dist:mac": "pnpm run build && electron-builder --mac",
+    "dist:linux": "pnpm run build && electron-builder --linux",
+    "dist:dir": "pnpm run build && electron-builder --dir",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.4.5",
+    "pino": "^9",
+    "pino-http": "^10"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "catalog:",
+    "@workspace/afro-fish": "workspace:*",
+    "@workspace/api-server": "workspace:*",
+    "@workspace/db": "workspace:*",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2",
+    "drizzle-orm": "catalog:",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.27.3",
+    "express": "^5",
+    "typescript": "~5.9.2"
+  }
+}

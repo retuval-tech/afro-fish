@@ -1,0 +1,79 @@
+uploads = []
+
+[[generated]]
+id = "royYjy5wVpXhG9cjlpxfS"
+uri = "file://artifacts/afro-fish/public/sprites/fish_clownfish.png"
+type = "image"
+title = "realistic clownfish"
+
+[[generated]]
+id = "nNG-bKC_z9PmRIAF3X6HW"
+uri = "file://artifacts/afro-fish/public/sprites/fish_grouper.png"
+type = "image"
+title = "realistic grouper sprite"
+
+[[generated]]
+id = "wM1wOtjj6pShPpP3zVMBE"
+uri = "file://artifacts/afro-fish/public/sprites/fish_pufferfish.png"
+type = "image"
+title = "realistic pufferfish sprite"
+
+[[generated]]
+id = "525wkO8YCT0Hq3LfXsALV"
+uri = "file://artifacts/afro-fish/public/sprites/fish_shark.png"
+type = "image"
+title = "realistic shark sprite"
+
+[[generated]]
+id = "7798baLZbbEl168g0tTP1"
+uri = "file://artifacts/afro-fish/public/sprites/fish_megalodon.png"
+type = "image"
+title = "realistic megalodon sprite"
+
+[[generated]]
+id = "TRKfCFjp0zkHpzvu9aDq3"
+uri = "file://artifacts/afro-fish/public/sprites/dragon_whelp.png"
+type = "image"
+title = "realistic dragon whelp"
+
+[[generated]]
+id = "w0sE3iffeKsrzveRdRaOi"
+uri = "file://artifacts/afro-fish/public/sprites/dragon_fire.png"
+type = "image"
+title = "realistic fire drake"
+
+[[generated]]
+id = "Dx7ugmfAFr_qVfhLO1XGk"
+uri = "file://artifacts/afro-fish/public/sprites/dragon_forest.png"
+type = "image"
+title = "realistic forest wyrm"
+
+[[generated]]
+id = "k8tcBsBQs-LMqKPiLTmAj"
+uri = "file://artifacts/afro-fish/public/sprites/dragon_shadow.png"
+type = "image"
+title = "realistic shadow drake"
+
+[[generated]]
+id = "3uhqsxrQz7YQzwR13jQ0l"
+uri = "file://artifacts/afro-fish/public/sprites/dragon_king.png"
+type = "image"
+title = "realistic dragon king"
+
+[[generated]]
+id = "_FXYIsGxwfrUhVxVdOvFl"
+uri = "file://artifacts/afro-fish/public/sprites/bg_underwater.png"
+type = "image"
+title = "deep underwater dark background"
+
+[[generated]]
+id = "5PSMFN1bKtt9P_TYWT_XL"
+uri = "file://artifacts/afro-fish/public/sprites/bg_dragonking.png"
+type = "image"
+title = "epic dragon king background"
+
+[[outputs]]
+id = "Pf-5ADtS7YiyCc9I2_Zbw"
+uri = "file://artifacts/desktop/release/AfroFishArcade-0.1.0-linux-x64.tar.gz"
+type = "unspecified"
+title = "Afro Fish Arcade 0.1.0 — Linux installer (AppImage in .tar.gz)"

@@ -1,0 +1,1123 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Afro Fish platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: auth
+  - name: game
+  - name: admin
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: playerLogin
+      tags: [auth]
+      summary: Player login with name and PIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerLoginInput"
+      responses:
+        "200":
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerSession"
+        "401":
+          description: Invalid credentials
+
+  /players/me:
+    get:
+      operationId: getPlayerMe
+      tags: [auth]
+      summary: Get current logged-in player info
+      parameters:
+        - name: sessionToken
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Player info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        "401":
+          description: Unauthorized
+
+  /game/shoot:
+    post:
+      operationId: gameShoot
+      tags: [game]
+      summary: Resolve a shot in Fish Hunter or Dragon King
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShootInput"
+      responses:
+        "200":
+          description: Shot result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShootResult"
+
+  /game/jackpot:
+    get:
+      operationId: getJackpot
+      tags: [game]
+      summary: Get current grand jackpot pool
+      responses:
+        "200":
+          description: Jackpot info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JackpotInfo"
+
+  /game/claim-daily:
+    post:
+      operationId: claimDailyBonus
+      tags: [game]
+      summary: Claim daily login bonus (once per calendar day)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimDailyInput"
+      responses:
+        "200":
+          description: Claim result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimResult"
+
+  /game/claim-chest:
+    post:
+      operationId: claimChestBonus
+      tags: [game]
+      summary: Claim a bonus chest reward (random prize)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimChestInput"
+      responses:
+        "200":
+          description: Chest reward
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimResult"
+
+  /game/claim-milestone:
+    post:
+      operationId: claimMilestoneBonus
+      tags: [game]
+      summary: Claim session milestone reward (every N shots)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimMilestoneInput"
+      responses:
+        "200":
+          description: Milestone reward
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimResult"
+
+  /game/leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [game]
+      summary: Get top players leaderboard
+      parameters:
+        - name: game
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [fish-hunter, dragon-king]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /game/sessions:
+    get:
+      operationId: getGameSessions
+      tags: [game]
+      summary: Get recent game sessions for a player
+      parameters:
+        - name: sessionToken
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Recent sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameSession"
+
+  /game/boss-payout:
+    post:
+      operationId: bossPayout
+      tags: [game]
+      summary: Credit boss kill rewards to multiple players proportional to damage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BossPayoutInput"
+      responses:
+        "200":
+          description: Payout results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BossPayoutResult"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Admin session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Invalid admin PIN
+
+  /admin/players:
+    get:
+      operationId: getAdminPlayers
+      tags: [admin]
+      summary: List all players
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All players
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Player"
+    post:
+      operationId: createPlayer
+      tags: [admin]
+      summary: Create a new player
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerInput"
+      responses:
+        "201":
+          description: Created player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /admin/reset-pin:
+    post:
+      operationId: resetPlayerPin
+      tags: [admin]
+      summary: Reset a player's PIN
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          in: query
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPinInput"
+      responses:
+        "200":
+          description: PIN updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /admin/delete-player:
+    post:
+      operationId: deletePlayer
+      tags: [admin]
+      summary: Delete a player
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /admin/reload-credits:
+    post:
+      operationId: reloadPlayerCredits
+      tags: [admin]
+      summary: Reload credits (cash in) to a player account
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          in: query
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreditReloadInput"
+      responses:
+        "200":
+          description: Updated player with bonus info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReloadResult"
+
+  /admin/cashout:
+    post:
+      operationId: cashoutPlayer
+      tags: [admin]
+      summary: Process cash out for a player
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          in: query
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CashoutInput"
+      responses:
+        "200":
+          description: Updated player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /admin/rescue:
+    post:
+      operationId: rescuePlayer
+      tags: [admin]
+      summary: Give comeback credits to a low-balance player
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /admin/transactions:
+    get:
+      operationId: getAdminTransactions
+      tags: [admin]
+      summary: Get all transactions
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: playerId
+          in: query
+          required: false
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+
+  /admin/analytics:
+    get:
+      operationId: getAdminAnalytics
+      tags: [admin]
+      summary: Get traffic and revenue analytics
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            enum: [1, 7, 30, 90]
+            default: 30
+      responses:
+        "200":
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAnalytics"
+
+  /admin/settings:
+    get:
+      operationId: getAdminSettings
+      tags: [admin]
+      summary: Get platform settings
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSettings"
+    post:
+      operationId: updateAdminSettings
+      tags: [admin]
+      summary: Update platform settings
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminSettings"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSettings"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get platform stats
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/game-config:
+    get:
+      operationId: getGameConfig
+      tags: [admin]
+      summary: Get win rate configs for all games and tiers
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Game config list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameConfigList"
+
+  /admin/set-game-config:
+    post:
+      operationId: updateGameConfig
+      tags: [admin]
+      summary: Update win rate for a game and tier
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: game
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tier
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameConfigInput"
+      responses:
+        "200":
+          description: Updated config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameConfig"
+
+  /admin/bonus-config:
+    get:
+      operationId: getBonusConfig
+      tags: [admin]
+      summary: Get bonus configuration
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bonus config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BonusConfig"
+    post:
+      operationId: updateBonusConfig
+      tags: [admin]
+      summary: Update bonus configuration
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BonusConfigInput"
+      responses:
+        "200":
+          description: Updated bonus config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BonusConfig"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    PlayerLoginInput:
+      type: object
+      required: [name, pin]
+      properties:
+        name:
+          type: string
+        pin:
+          type: string
+
+    AdminLoginInput:
+      type: object
+      required: [pin]
+      properties:
+        pin:
+          type: string
+
+    PlayerInput:
+      type: object
+      required: [name, pin]
+      properties:
+        name:
+          type: string
+        pin:
+          type: string
+        initialCredits:
+          type: number
+          default: 0
+
+    ResetPinInput:
+      type: object
+      required: [newPin]
+      properties:
+        newPin:
+          type: string
+
+    CreditReloadInput:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+        note:
+          type: string
+
+    CashoutInput:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+        note:
+          type: string
+
+    ClaimDailyInput:
+      type: object
+      required: [sessionToken]
+      properties:
+        sessionToken:
+          type: string
+
+    ClaimChestInput:
+      type: object
+      required: [sessionToken]
+      properties:
+        sessionToken:
+          type: string
+
+    ClaimMilestoneInput:
+      type: object
+      required: [sessionToken]
+      properties:
+        sessionToken:
+          type: string
+
+    ShootInput:
+      type: object
+      required: [sessionToken, game, tier, weaponMultiplier, fishName, fishValue]
+      properties:
+        sessionToken:
+          type: string
+        game:
+          type: string
+          enum: [fish-hunter, dragon-king]
+        tier:
+          type: string
+          enum: [bronze, silver, gold]
+        weaponMultiplier:
+          type: integer
+        fishName:
+          type: string
+        fishValue:
+          type: integer
+        hasSpecialAura:
+          type: boolean
+
+    ShootResult:
+      type: object
+      required: [hit, pointsWon, betAmount, newBalance, miniJackpot, grandJackpot, killTrophy, totalKills]
+      properties:
+        hit:
+          type: boolean
+        pointsWon:
+          type: integer
+        betAmount:
+          type: integer
+        newBalance:
+          type: number
+        miniJackpot:
+          type: integer
+        grandJackpot:
+          type: integer
+        killTrophy:
+          type: integer
+        totalKills:
+          type: integer
+
+    ClaimResult:
+      type: object
+      required: [bonus, newBalance, eligible]
+      properties:
+        bonus:
+          type: integer
+        newBalance:
+          type: number
+        eligible:
+          type: boolean
+        message:
+          type: string
+
+    JackpotInfo:
+      type: object
+      required: [pool]
+      properties:
+        pool:
+          type: integer
+
+    ReloadResult:
+      type: object
+      required: [player, bonusApplied, bonusType]
+      properties:
+        player:
+          $ref: "#/components/schemas/Player"
+        bonusApplied:
+          type: integer
+        bonusType:
+          type: string
+
+    GameConfigInput:
+      type: object
+      required: [winRate]
+      properties:
+        winRate:
+          type: number
+          minimum: 0
+          maximum: 100
+
+    BonusConfig:
+      type: object
+      required: [jackpotPool, firstDepositPct, reloadPct, dailyLoginBonus, sessionMilestoneAmt, sessionMilestoneEvery, comebackThreshold, comebackAmt, miniJackpotOdds]
+      properties:
+        jackpotPool:
+          type: integer
+        firstDepositPct:
+          type: integer
+        reloadPct:
+          type: integer
+        dailyLoginBonus:
+          type: integer
+        sessionMilestoneAmt:
+          type: integer
+        sessionMilestoneEvery:
+          type: integer
+        comebackThreshold:
+          type: integer
+        comebackAmt:
+          type: integer
+        miniJackpotOdds:
+          type: number
+
+    BonusConfigInput:
+      type: object
+      properties:
+        firstDepositPct:
+          type: integer
+          minimum: 0
+          maximum: 100
+        reloadPct:
+          type: integer
+          minimum: 0
+          maximum: 100
+        dailyLoginBonus:
+          type: integer
+          minimum: 0
+        sessionMilestoneAmt:
+          type: integer
+          minimum: 0
+        sessionMilestoneEvery:
+          type: integer
+          minimum: 10
+        comebackThreshold:
+          type: integer
+          minimum: 0
+        comebackAmt:
+          type: integer
+          minimum: 0
+        miniJackpotOdds:
+          type: number
+          minimum: 0
+          maximum: 100
+
+    BossPayoutInput:
+      type: object
+      required: [payouts, tier, note]
+      properties:
+        payouts:
+          type: array
+          items:
+            type: object
+            required: [sessionToken, amount]
+            properties:
+              sessionToken:
+                type: string
+              amount:
+                type: number
+        tier:
+          type: string
+        note:
+          type: string
+
+    BossPayoutResult:
+      type: object
+      required: [results]
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            required: [playerName, amount, newBalance]
+            properties:
+              playerName:
+                type: string
+              amount:
+                type: number
+              newBalance:
+                type: number
+
+    Player:
+      type: object
+      required: [id, name, balance, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        balance:
+          type: number
+        totalWon:
+          type: number
+        totalLost:
+          type: number
+        gamesPlayed:
+          type: integer
+        totalKills:
+          type: integer
+        killTrophiesClaimed:
+          type: integer
+        lastLoginDate:
+          type: ["string", "null"]
+        firstDepositDone:
+          type: boolean
+        createdAt:
+          type: string
+
+    PlayerSession:
+      type: object
+      required: [sessionToken, player]
+      properties:
+        sessionToken:
+          type: string
+        player:
+          $ref: "#/components/schemas/Player"
+
+    AdminSession:
+      type: object
+      required: [adminKey]
+      properties:
+        adminKey:
+          type: string
+
+    Transaction:
+      type: object
+      required: [id, playerId, playerName, type, amount, createdAt]
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: integer
+        playerName:
+          type: string
+        type:
+          type: string
+          enum: [credit_in, credit_out, game_win, game_loss, bonus]
+        amount:
+          type: number
+        note:
+          type: ["string", "null"]
+        game:
+          type: ["string", "null"]
+        tier:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    GameSession:
+      type: object
+      required: [id, game, tier, pointsWon, betAmount, hit, createdAt]
+      properties:
+        id:
+          type: integer
+        game:
+          type: string
+        tier:
+          type: string
+        fishName:
+          type: ["string", "null"]
+        weaponMultiplier:
+          type: integer
+        pointsWon:
+          type: integer
+        betAmount:
+          type: integer
+        hit:
+          type: boolean
+        createdAt:
+          type: string
+
+    LeaderboardEntry:
+      type: object
+      required: [rank, playerName, totalWon, gamesPlayed]
+      properties:
+        rank:
+          type: integer
+        playerName:
+          type: string
+        totalWon:
+          type: number
+        gamesPlayed:
+          type: integer
+
+    AdminAnalytics:
+      type: object
+      required: [dailyTraffic, hourlyActivity, gameBreakdown, tierBreakdown, peakHour, avgDailyLogins, totalLogins30d, totalPlays30d]
+      properties:
+        dailyTraffic:
+          type: array
+          items:
+            type: object
+            required: [date, logins, newPlayers, gamePlays, cashIn, cashOut]
+            properties:
+              date: { type: string }
+              logins: { type: integer }
+              newPlayers: { type: integer }
+              gamePlays: { type: integer }
+              cashIn: { type: number }
+              cashOut: { type: number }
+        hourlyActivity:
+          type: array
+          items:
+            type: object
+            required: [hour, count]
+            properties:
+              hour: { type: integer }
+              count: { type: integer }
+        gameBreakdown:
+          type: array
+          items:
+            type: object
+            required: [game, plays, bets, wins, winRate]
+            properties:
+              game: { type: string }
+              plays: { type: integer }
+              bets: { type: number }
+              wins: { type: number }
+              winRate: { type: number }
+        tierBreakdown:
+          type: array
+          items:
+            type: object
+            required: [tier, plays, bets]
+            properties:
+              tier: { type: string }
+              plays: { type: integer }
+              bets: { type: number }
+        peakHour: { type: integer }
+        avgDailyLogins: { type: number }
+        totalLogins30d: { type: integer }
+        totalPlays30d: { type: integer }
+        windowDays: { type: integer }
+        totalCashIn: { type: number }
+        totalCashOut: { type: number }
+        netRevenue: { type: number }
+        activePlayers: { type: integer }
+        newPlayersWindow: { type: integer }
+        totalBonusPaid: { type: number }
+        avgBetSize: { type: number }
+
+    AdminSettings:
+      type: object
+      required: [withdrawalEnabled]
+      properties:
+        withdrawalEnabled:
+          type: boolean
+          description: When false, the cashout endpoint rejects all withdrawal requests
+
+    AdminStats:
+      type: object
+      required: [totalPlayers, totalCreditsInCirculation, totalCashIn, totalCashOut, totalGameWins, totalGameLosses, activePlayers, multiplayerSessions, multiplayerPlayers, multiplayerBets, multiplayerPayouts]
+      properties:
+        totalPlayers:
+          type: integer
+        totalCreditsInCirculation:
+          type: number
+        totalCashIn:
+          type: number
+        totalCashOut:
+          type: number
+        totalGameWins:
+          type: number
+        totalGameLosses:
+          type: number
+        activePlayers:
+          type: integer
+        houseProfit:
+          type: number
+        multiplayerSessions:
+          type: integer
+          description: Number of boss-kill payout events (completed boss battles)
+        multiplayerPlayers:
+          type: integer
+          description: Distinct players who have played multiplayer
+        multiplayerBets:
+          type: number
+          description: Total credits bet in multiplayer boss battles
+        multiplayerPayouts:
+          type: number
+          description: Total credits paid out in multiplayer boss battles
+
+    GameConfig:
+      type: object
+      required: [id, game, tier, winRate]
+      properties:
+        id:
+          type: integer
+        game:
+          type: string
+        tier:
+          type: string
+        winRate:
+          type: number
+
+    GameConfigList:
+      type: object
+      required: [configs]
+      properties:
+        configs:
+          type: array
+          items:
+            $ref: "#/components/schemas/GameConfig"

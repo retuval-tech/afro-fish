@@ -1,0 +1,55 @@
+appId: app.replit.afrofish.desktop
+productName: Afro Fish Arcade
+copyright: Copyright © 2026
+directories:
+  output: release
+  buildResources: build
+
+# What to include in the packaged app
+files:
+  - dist/main.cjs
+  - dist/main.cjs.map
+  - package.json
+  - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+  - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+  - "!**/*.{md,markdown}"
+  - "!**/.replit-artifact/**"
+  - "!**/.replit-artifact"
+  - "!**/artifact.toml"
+
+# The /web folder lives outside the asar so Express can stream files from it.
+extraResources:
+  - from: dist/web
+    to: web
+
+asarUnpack:
+  - node_modules/@electric-sql/pglite/**/*
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: ${productName}-Setup-${version}.${ext}
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Afro Fish Arcade
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  category: public.app-category.games
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+dmg:
+  title: Afro Fish Arcade ${version}
+
+linux:
+  target:
+    - AppImage
+  category: Game
