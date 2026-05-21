@@ -741,8 +741,30 @@ export default function FishHunterGame() {
       const mx = mouseRef.current.x, my = mouseRef.current.y;
       const cannonX = W / 2, cannonY = H - 52;
 
+      // ── Auto-fire target selection ──
+      // When auto-fire is on AND the player isn't manually firing,
+      // scan the entire upper field for the most valuable nearby fish.
+      // Used for BOTH cannon aim tracking and the actual shot,
+      // so the cannon visually hunts targets between shots.
+      let autoTarget: FishObj | null = null;
+      if (autoFireRef.current && !st.mouseDown) {
+        let bs = -Infinity;
+        for (const fish of st.fish) {
+          if (fish.dying !== undefined) continue;
+          const dx = fish.x - cannonX, dy = fish.y - cannonY;
+          if (dy > -10) continue; // target must be above the cannon
+          const dist = Math.hypot(dx, dy) || 1;
+          const score = (FISH[fish.t].mult * 1.8) / (dist * 0.004 + 1);
+          if (score > bs) { bs = score; autoTarget = fish; }
+        }
+      }
+
+      // Aim point: the auto target if we have one, otherwise the mouse cursor
+      const aimX = autoTarget ? autoTarget.x : mx;
+      const aimY = autoTarget ? autoTarget.y : my;
+
       // Clamp target to upper arc only (cannon can't point downward)
-      const rawAngle = Math.atan2(my - cannonY, mx - cannonX);
+      const rawAngle = Math.atan2(aimY - cannonY, aimX - cannonX);
       const targetAngle = Math.max(-Math.PI + 0.12, Math.min(-0.12, rawAngle));
       let diff = targetAngle - st.cannonAngle;
       while (diff >  Math.PI) diff -= 2*Math.PI;
@@ -755,24 +777,30 @@ export default function FishHunterGame() {
       if (st.shotCooldown > 0) st.shotCooldown--;
       if (st.muzzleFlash  > 0) st.muzzleFlash--;
 
-      if ((st.mouseDown || autoFireRef.current) && st.shotCooldown === 0) {
-        // Value-weighted targeting: prefer valuable + aligned + nearby fish
-        const cosA = Math.cos(st.cannonAngle), sinA = Math.sin(st.cannonAngle);
-        let best: FishObj | null = null, bestScore = -Infinity;
-        for (const fish of st.fish) {
-          if (fish.dying !== undefined) continue;
-          const dx = fish.x - cannonX, dy = fish.y - cannonY;
-          const dot = dx * cosA + dy * sinA;
-          if (dot <= 10) continue;
-          const perp = Math.abs(dx * sinA - dy * cosA);
-          if (perp > 220) continue; // within aim cone
-          const dist = Math.hypot(dx, dy) || 1;
-          const score = (FISH[fish.t].mult * 1.8) / (perp + 1) / (dist * 0.004 + 1);
-          if (score > bestScore) { bestScore = score; best = fish; }
-        }
-        if (best) {
-          st.cannonAngle = Math.atan2(best.y - cannonY, best.x - cannonX);
-          shootFnRef.current(best.id);
+      if (st.shotCooldown === 0) {
+        if (autoTarget) {
+          // Auto-fire path: shoot the pre-selected best target directly.
+          st.cannonAngle = Math.atan2(autoTarget.y - cannonY, autoTarget.x - cannonX);
+          shootFnRef.current(autoTarget.id);
+        } else if (st.mouseDown) {
+          // Manual fire path: value-weighted targeting within current aim cone.
+          const cosA = Math.cos(st.cannonAngle), sinA = Math.sin(st.cannonAngle);
+          let best: FishObj | null = null, bestScore = -Infinity;
+          for (const fish of st.fish) {
+            if (fish.dying !== undefined) continue;
+            const dx = fish.x - cannonX, dy = fish.y - cannonY;
+            const dot = dx * cosA + dy * sinA;
+            if (dot <= 10) continue;
+            const perp = Math.abs(dx * sinA - dy * cosA);
+            if (perp > 220) continue; // within aim cone
+            const dist = Math.hypot(dx, dy) || 1;
+            const score = (FISH[fish.t].mult * 1.8) / (perp + 1) / (dist * 0.004 + 1);
+            if (score > bestScore) { bestScore = score; best = fish; }
+          }
+          if (best) {
+            st.cannonAngle = Math.atan2(best.y - cannonY, best.x - cannonX);
+            shootFnRef.current(best.id);
+          }
         }
       }
 
